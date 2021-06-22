@@ -1,4 +1,4 @@
-let socket = io.connect("http://localhost:8080");
+let socket = io.connect("https://myrealtimevideochatapp.herokuapp.com");
 
 let videoChatLobby = document.getElementById("video-chat-lobby");
 let videoChat = document.getElementById("video-chat-room");
@@ -129,6 +129,7 @@ socket.on("answer", function(answer){
 
 function OnIceCandidateFunc(event) {
 
+    console.log("Candidate");
     if(event.candidate){
         socket.emit("candidate", event.candidate, roomName);
     }
