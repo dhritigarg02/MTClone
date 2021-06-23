@@ -1,4 +1,4 @@
-let socket = io.connect("http://localhost:8080");
+let socket = io.connect("https://myrealtimevideochatapp.herokuapp.com");
 
 let videoChatLobby = document.getElementById("video-chat-lobby");
 let videoChat = document.getElementById("video-chat-room");
