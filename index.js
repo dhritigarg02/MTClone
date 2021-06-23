@@ -1,11 +1,11 @@
 const express = require("express");
 const socket = require("socket.io");
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
 const app = express();
 
 let server = app.listen(port, function(){
-    console.log("server is running!");
+    console.log("server is running on port " + port);
 });
 
 app.use(express.static('public'));
@@ -53,6 +53,11 @@ io.on("connection", function(socket){
     socket.on("answer", function(answer, roomName){
         console.log("Answer");
         socket.broadcast.to(roomName).emit("answer", answer);
+    });
+
+    socket.on("leave", function(roomName){
+        socket.leave(roomName);
+        socket.broadcast.to(roomName).emit("leave");
     });
 });
 
