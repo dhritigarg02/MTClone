@@ -12,11 +12,10 @@ app.use(express.static('public'));
 
 let io = socket(server);
 
-io.on("connection", function(socket){
+io.on("connection", socket => {
     console.log("User Connected : " + socket.id);
 
-    socket.on("join", function(roomName){
-        
+    socket.on("join", roomName => {   
         let rooms = io.sockets.adapter.rooms;
         let room = rooms.get(roomName);
 
@@ -35,27 +34,27 @@ io.on("connection", function(socket){
         console.log(rooms);
     });
     
-    socket.on("ready", function(roomName){
+    socket.on("ready", roomName => {
         console.log("Ready");
         socket.broadcast.to(roomName).emit("ready");
     });
 
-    socket.on("candidate", function(candidate, roomName){
+    socket.on("candidate", (candidate, roomName) => {
         console.log("Candidate");
         socket.broadcast.to(roomName).emit("candidate", candidate);
     });
 
-    socket.on("offer", function(offer, roomName){
+    socket.on("offer", (offer, roomName) => {
         console.log("Offer");
         socket.broadcast.to(roomName).emit("offer", offer);
     });
 
-    socket.on("answer", function(answer, roomName){
+    socket.on("answer", (answer, roomName) => {
         console.log("Answer");
         socket.broadcast.to(roomName).emit("answer", answer);
     });
 
-    socket.on("leave", function(roomName){
+    socket.on("leave", roomName => {
         socket.leave(roomName);
         socket.broadcast.to(roomName).emit("leave");
     });

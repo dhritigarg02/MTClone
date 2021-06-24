@@ -9,7 +9,13 @@
   "author": "Dhriti Garg",
   "license": "ISC",
   "dependencies": {
+    "core-js": "^3.15.1",
+    "ejs": "^3.1.6",
     "express": "^4.17.1",
+    "express-ejs-layouts": "^2.5.1",
+    "npm": "^7.18.1",
+    "pug": "^3.0.1",
+    "pug-cli": "^1.0.0-alpha6",
     "socket.io": "^4.1.2"
   }
 }

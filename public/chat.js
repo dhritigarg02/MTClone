@@ -6,23 +6,40 @@ let joinButton = document.getElementById("join");
 let userVideo = document.getElementById("user-video");
 let peerVideo = document.getElementById("peer-video");
 let roomInput = document.getElementById("roomName");
-
 let divButtonGroup = document.getElementById("btn-group");
 let muteButton = document.getElementById("muteButton");
 let leaveRoomButton = document.getElementById("leaveRoomButton");
 let hideCameraButton = document.getElementById("hideCameraButton");
+let shareScreenButton = document.getElementById("shareScreenButton");
+
 let muteFlag = false;
 let hideCameraFlag = false;
+let shareScreenFlag = false;
 
 let roomName;
 let creator = false;
 let userStream;
+let camVideoTrack, camAudioTrack, screenVideoTrack;
+let videoSender, audioSender;
 let rtcPeerConnection;
 
+
+//RTCPeerConnection uses ICE to work out the best path between peers
+//working with STUN and TURN servers as necessary
 let iceServers = {
     iceServers:[
         { urls: "stun:stun.services.mozilla.com"},
         { urls: "stun:stun.l.google.com:19302"},
+        {
+            url: 'turn:numb.viagenie.ca',
+            credential: 'muazkh',
+            username: 'webrtc@live.com'
+        },
+        {
+            url: 'turn:192.158.29.39:3478?transport=udp',
+            credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            username: '28224511:1379330808'
+        }
     ],
 };
 
@@ -43,7 +60,7 @@ muteButton.addEventListener("click", function(){
         userStream.getTracks()[0].enabled = false;
         muteButton.textContent = "Unmute";
     } else {
-        userStream.getTracks()[0].enabled = false;
+        userStream.getTracks()[0].enabled = true;
         muteButton.textContent = "Mute";
     }
 });
@@ -58,6 +75,34 @@ hideCameraButton.addEventListener("click", function(){
         userStream.getTracks()[1].enabled = true;
         hideCameraButton.textContent = "Hide Camera";
     }
+});
+
+shareScreenButton.addEventListener("click", function(){
+
+    shareScreenButton.disabled = true;
+
+    navigator.mediaDevices.getDisplayMedia({
+        cursor: true
+    })
+    .then(stream => {
+
+        screenVideoTrack = stream.getTracks()[0];
+        userVideo.style = "transform: none";
+        userVideo.srcObject = stream;
+        videoSender.replaceTrack(screenVideoTrack);
+
+        // demonstrates how to detect that the user has stopped
+        // sharing the screen via the browser UI.
+        screenVideoTrack.onended = function(){
+            videoSender.replaceTrack(camVideoTrack);
+            userVideo.style = "transform: scale(-1, 1)";
+            userVideo.srcObject = userStream;
+            shareScreenButton.disabled = false;
+        }
+    })
+    .catch(err => {
+        alert("Couldn't access user screen media");
+    });
 });
 
 leaveRoomButton.addEventListener("click", function(){
@@ -81,103 +126,132 @@ leaveRoomButton.addEventListener("click", function(){
     }
 });
 
+function StreamUserMediaFunc(stream){
+
+    userStream = stream;
+    videoChatLobby.style = "display: none";
+    userVideo.style = "transform: scale(-1, 1)";
+    divButtonGroup.style = "display: flex";
+    userVideo.srcObject = stream;
+    userVideo.onloadedmetadata = function(e) {
+        userVideo.play();
+    };
+}
+
+function GetUserMediaFunc(){
+
+    return navigator.mediaDevices
+            .getUserMedia({
+                audio : true,
+                video : {width : 1280, height : 720}
+            });
+}
+
 socket.on("created", function(){
+
     creator = true;
 
-    navigator.mediaDevices
-    .getUserMedia({
-        audio : true,
-        video : {width : 500, height : 500}
+    GetUserMediaFunc()
+    .then(stream => {
+        StreamUserMediaFunc(stream);
     })
-    .then(function(stream){
-
-        userStream = stream;
-        videoChatLobby.style = "display:none";
-        divButtonGroup.style = "display:flex";
-        userVideo.srcObject = stream;
-        userVideo.onloadedmetadata = function(e) {
-            userVideo.play();
-        };
-    })
-    .catch(function(err){
+    .catch(error => {
+        console.log(error);
         alert("couldn't access user media");
     });
 });
 
 socket.on("joined", function(){
+
     creator = false;
 
-    navigator.mediaDevices
-    .getUserMedia({
-        audio : true,
-        video : {width : 500, height : 500}
-    })
-    .then(function(stream){
-
-        userStream = stream;
-        videoChatLobby.style = "display:none";
-        divButtonGroup.style = "display:flex";
-        userVideo.srcObject = stream;
-        userVideo.onloadedmetadata = function(e) {
-            userVideo.play();
-        };
+    GetUserMediaFunc()
+    .then(stream => {
+        StreamUserMediaFunc(stream);
         socket.emit("ready", roomName);
     })
-    .catch(function(){
+    .catch(error => {
+        console.log(error);
         alert("couldn't access user media");
     });
 });
 
+//Triggered when a room is full (meaning has 2 people).
 socket.on("full", function(){
+
     alert("room is full, can't join!");
 });
 
-socket.on("ready", function(){
-    if(creator){
-        rtcPeerConnection = new RTCPeerConnection(iceServers);
-        rtcPeerConnection.onicecandidate = OnIceCandidateFunc;
-        rtcPeerConnection.ontrack = OnTrackFunc;
-        rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
-        rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
-        rtcPeerConnection.createOffer()
-        .then((offer) => {
-            rtcPeerConnection.setLocalDescription(offer);
-            socket.emit("offer", offer, roomName);
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-    }
-});
-
-socket.on("candidate", function(candidate){
+//Triggered on receiving an ice candidate from the peer.
+socket.on("candidate", candidate => {
     
     let icecandidate = new RTCIceCandidate(candidate);
     rtcPeerConnection.addIceCandidate(icecandidate);
 });
 
-socket.on("offer", function(offer){
+//Implementing the OnTrackFunction which is part of the RTCPeerConnection Interface.
+function OnTrackFunc(event){
+
+    peerVideo.srcObject = event.streams[0];
+    peerVideo.onloadedmetadata = function(e){
+        peerVideo.play();
+    };
+}
+
+//Implementing the OnIceCandidateFunction which is part of the RTCPeerConnection Interface.
+function OnIceCandidateFunc(event){
+
+    console.log("Candidate");
+    if(event.candidate){
+        socket.emit("candidate", event.candidate, roomName);
+    }
+}
+
+function NewPeerConnFunc(){
+
+    camVideoTrack = userStream.getVideoTracks()[0];
+    camAudioTrack = userStream.getAudioTracks()[0];
+    rtcPeerConnection = new RTCPeerConnection(iceServers);
+    rtcPeerConnection.onicecandidate = OnIceCandidateFunc;
+    rtcPeerConnection.ontrack = OnTrackFunc;
+    videoSender = rtcPeerConnection.addTrack(camVideoTrack, userStream);
+    audioSender = rtcPeerConnection.addTrack(camAudioTrack, userStream);
+}
+
+socket.on("ready", function(){
+
+    if(creator){
+        NewPeerConnFunc(iceServers);
+        rtcPeerConnection.createOffer()
+        .then(offer => {
+            rtcPeerConnection.setLocalDescription(offer);
+            socket.emit("offer", offer, roomName);
+        })
+        .catch(error => {
+            console.log(error);
+        });
+    }
+});
+
+socket.on("offer", offer => {
 
     if(!creator){
-        rtcPeerConnection = new RTCPeerConnection(iceServers);
-        rtcPeerConnection.onicecandidate = OnIceCandidateFunc;
-        rtcPeerConnection.ontrack = OnTrackFunc;
-        rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
-        rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
+        NewPeerConnFunc(iceServers);
         rtcPeerConnection.setRemoteDescription(offer);
         rtcPeerConnection.createAnswer()
-            .then((answer) => {
+        .then(answer => {
             rtcPeerConnection.setLocalDescription(answer);
             socket.emit("answer", answer, roomName);
-            })
-            .catch((error) => {
+        })
+        .catch(error => {
             console.log(error);
         });
     }
 
 });
 
-socket.on("answer", function(answer){
+socket.on("answer", answer => {
+
     rtcPeerConnection.setRemoteDescription(answer);
 });
 
@@ -198,20 +272,7 @@ socket.on("leave", function(){
     }
 });
 
-function OnIceCandidateFunc(event) {
 
-    console.log("Candidate");
-    if(event.candidate){
-        socket.emit("candidate", event.candidate, roomName);
-    }
-}
 
-function OnTrackFunc(event){
 
-    peerVideo.srcObject = event.streams[0];
-    peerVideo.onloadedmetadata = function(e) {
-        peerVideo.play();
-    };
-
-}
 
