@@ -1,4 +1,4 @@
-let socket = io.connect("https://myrealtimevideochatapp.herokuapp.com");
+let socket = io();
 
 let videoChatLobby = document.getElementById("video-chat-lobby");
 let videoChat = document.getElementById("video-chat-room");
@@ -11,6 +11,10 @@ let muteButton = document.getElementById("muteButton");
 let leaveRoomButton = document.getElementById("leaveRoomButton");
 let hideCameraButton = document.getElementById("hideCameraButton");
 let shareScreenButton = document.getElementById("shareScreenButton");
+let msgInput = document.getElementById("msgInput");
+let sendMsgButton = document.getElementById("sendMsgButton");
+let divChatArea = document.getElementById("chat-area");
+let divChatCard = document.getElementById("chat-wrap-card");
 
 let muteFlag = false;
 let hideCameraFlag = false;
@@ -22,6 +26,7 @@ let userStream;
 let camVideoTrack, camAudioTrack, screenVideoTrack;
 let videoSender, audioSender;
 let rtcPeerConnection;
+let chatChannel;
 
 
 //RTCPeerConnection uses ICE to work out the best path between peers
@@ -105,11 +110,20 @@ shareScreenButton.addEventListener("click", function(){
     });
 });
 
+sendMsgButton.addEventListener("click", function(){
+
+    let message = msgInput.value;
+    divChatArea.innerHTML += "<div class = 'right-align'>" + message + "</div><br />";
+    chatChannel.send(message);
+    msgInput.value = "";
+});
+
 leaveRoomButton.addEventListener("click", function(){
 
     socket.emit("leave", roomName);
     divButtonGroup.style = "display: none";
     videoChatLobby.style = "display: block";
+    divChatCard.style = "display: none";
 
     if(userVideo.srcObject){
         userVideo.srcObject.getTracks().forEach((track) => track.stop());
@@ -132,6 +146,7 @@ function StreamUserMediaFunc(stream){
     videoChatLobby.style = "display: none";
     userVideo.style = "transform: scale(-1, 1)";
     divButtonGroup.style = "display: flex";
+    divChatCard.style = "display: flex";
     userVideo.srcObject = stream;
     userVideo.onloadedmetadata = function(e) {
         userVideo.play();
@@ -218,10 +233,19 @@ function NewPeerConnFunc(){
     audioSender = rtcPeerConnection.addTrack(camAudioTrack, userStream);
 }
 
+function OnMessage(event){
+
+    console.log(event.data);
+    divChatArea.innerHTML += "<div class = 'left-align'>" + event.data + "</div><br />";
+}
+
 socket.on("ready", function(){
 
     if(creator){
         NewPeerConnFunc(iceServers);
+        chatChannel = rtcPeerConnection.createDataChannel("chatchannel");
+        chatChannel.onmessage = OnMessage;
+
         rtcPeerConnection.createOffer()
         .then(offer => {
             rtcPeerConnection.setLocalDescription(offer);
@@ -237,6 +261,11 @@ socket.on("offer", offer => {
 
     if(!creator){
         NewPeerConnFunc(iceServers);
+        rtcPeerConnection.ondatachannel = (event) => {
+            chatChannel = event.channel;
+            chatChannel.onmessage = OnMessage;
+        }
+
         rtcPeerConnection.setRemoteDescription(offer);
         rtcPeerConnection.createAnswer()
         .then(answer => {

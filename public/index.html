@@ -24,6 +24,20 @@
             <button id="hideCameraButton">Hide Camera</button>
             <button id="shareScreenButton">Share Screen</button>
         </div>
+        <div class="chat-wrap-card" id="chat-wrap-card" style="display: none">
+            <div class="row">
+                <div class="col m12 white">
+                    <div class="card-title">Text Chat</div>
+                    <div id="chat-area"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col m12">
+                    <input id="msgInput" type="text" placeholder="Message" name="">
+                    <button id="sendMsgButton">Send</button>
+                </div>
+            </div>
+        </div>
 
     </body>
     <script src="https://cdn.socket.io/3.1.3/socket.io.min.js" integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh" crossorigin="anonymous"></script>
