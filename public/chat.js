@@ -95,18 +95,23 @@ shareScreenButton.addEventListener("click", function(){
         screenVideoTrack = stream.getTracks()[0];
         userVideo.style = "transform: none";
         userVideo.srcObject = stream;
-        videoSender.replaceTrack(screenVideoTrack);
+        if(videoSender){
+            videoSender.replaceTrack(screenVideoTrack);
+        }
 
         // demonstrates how to detect that the user has stopped
         // sharing the screen via the browser UI.
         screenVideoTrack.onended = function(){
-            videoSender.replaceTrack(camVideoTrack);
+            if(videoSender){
+                videoSender.replaceTrack(camVideoTrack);
+            }
             userVideo.style = "transform: scale(-1, 1)";
             userVideo.srcObject = userStream;
             shareScreenButton.disabled = false;
         }
     })
     .catch(err => {
+        console.log(err);
         alert("Couldn't access user screen media");
     });
 });
@@ -114,9 +119,10 @@ shareScreenButton.addEventListener("click", function(){
 sendMsgButton.addEventListener("click", function(){
 
     let message = msgInput.value;
-    console.log(message);
-    divChatArea.innerHTML += '<li class="admin clearfix"><div class="chat-body clearfix"><p>' + message + '</p></div></li>';
-    chatChannel.send(message);
+    if(chatChannel){
+        divChatArea.innerHTML += '<li class="admin clearfix"><div class="chat-body clearfix"><p>' + message + '</p></div></li>';
+        chatChannel.send(message);
+    }
     msgInput.value = "";
 });
 
