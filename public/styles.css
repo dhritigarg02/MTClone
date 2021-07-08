@@ -9,36 +9,6 @@ h2 {
   color: #ffffff;
 }
 
-#chat-app {
-  text-align: center;
-  max-width: 600px;
-  background-color: #141414;
-  margin: 30px auto;
-}
-
-#chat-window {
-  height: 400px;
-  overflow: auto;
-  background: #f9f9f9;
-}
-
-#output p {
-  padding: 14px 0px;
-  margin: 0 20px;
-  border-bottom: 1px solid #e9e9e9;
-  color: #555;
-}
-
-#feedback p {
-  color: #aaa;
-  padding: 14px 0px;
-  margin: 0 20px;
-}
-
-#output strong {
-  color: #000000;
-}
-
 label {
   box-sizing: border-box;
   display: block;
@@ -65,24 +35,22 @@ input {
 }
 
 #video-chat-room {
-  display : flex;
-  justify-content: center;
+  display : block;
+  justify-content: left;
 }
 
 #user-video {
-  padding : 5%;
-  min-width: 40%; 
-  min-height: 50%;
-  width: auto;
-  height: auto;
+  padding : 2%;
+  width: 40%;
+  height: 50%;
 }
 
 #peer-video {
-  padding : 5%;
-  min-width: 40%; 
-  min-height: 50%;
-  width: auto;
-  height: auto;
+  padding : 2%;
+  width: 40%; 
+  height: 50%;
+  /* width: auto;
+  height: auto; */
 }
 
 .btn-group button {
@@ -113,4 +81,79 @@ input {
 .btn-group {
   display : flex;
   justify-content: center;
+}
+
+.card {
+  float: right;
+  width: 15%;
+  height: 50%;
+}
+
+.chat {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.chat li {
+    margin-top: 10px;
+    width: 85%;
+}
+
+.chat li .chat-body p {
+    margin: 0;
+}
+
+.chat-care {
+    overflow-y: scroll;
+    height: 500px;
+}
+
+#card-body {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.chat-care .chat-body {
+    display: inline-block;
+    max-width: 80%;
+    background-color: #FFC195;
+    border-radius: 12.5px;
+    padding: 15px;
+}
+
+.chat-care .admin {
+    text-align: right ;
+    float: right;
+}
+.chat-care .admin p {
+    text-align: left ;
+}
+.chat-care .agent {
+    text-align: left ;
+    float: left;
+}
+
+.clearfix {
+  clear: both;
+}
+
+::-webkit-scrollbar-track
+{
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar
+{
+    width: 12px;
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb
+{
+    box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #555;
 }

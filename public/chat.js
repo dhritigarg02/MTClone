@@ -11,10 +11,11 @@ let muteButton = document.getElementById("muteButton");
 let leaveRoomButton = document.getElementById("leaveRoomButton");
 let hideCameraButton = document.getElementById("hideCameraButton");
 let shareScreenButton = document.getElementById("shareScreenButton");
-let msgInput = document.getElementById("msgInput");
+let msgInput = document.getElementById("btn-input");
 let sendMsgButton = document.getElementById("sendMsgButton");
 let divChatArea = document.getElementById("chat-area");
-let divChatCard = document.getElementById("chat-wrap-card");
+let divChatCard = document.getElementById("card");
+let chatBody = document.getElementById("card-body");
 
 let muteFlag = false;
 let hideCameraFlag = false;
@@ -113,7 +114,8 @@ shareScreenButton.addEventListener("click", function(){
 sendMsgButton.addEventListener("click", function(){
 
     let message = msgInput.value;
-    divChatArea.innerHTML += "<div class = 'right-align'>" + message + "</div><br />";
+    console.log(message);
+    divChatArea.innerHTML += '<li class="admin clearfix"><div class="chat-body clearfix"><p>' + message + '</p></div></li>';
     chatChannel.send(message);
     msgInput.value = "";
 });
@@ -121,9 +123,8 @@ sendMsgButton.addEventListener("click", function(){
 leaveRoomButton.addEventListener("click", function(){
 
     socket.emit("leave", roomName);
-    divButtonGroup.style = "display: none";
+    videoChat.style = "display: none";
     videoChatLobby.style = "display: block";
-    divChatCard.style = "display: none";
 
     if(userVideo.srcObject){
         userVideo.srcObject.getTracks().forEach((track) => track.stop());
@@ -144,9 +145,8 @@ function StreamUserMediaFunc(stream){
 
     userStream = stream;
     videoChatLobby.style = "display: none";
+    videoChat.style = "display: block";
     userVideo.style = "transform: scale(-1, 1)";
-    divButtonGroup.style = "display: flex";
-    divChatCard.style = "display: flex";
     userVideo.srcObject = stream;
     userVideo.onloadedmetadata = function(e) {
         userVideo.play();
@@ -234,9 +234,8 @@ function NewPeerConnFunc(){
 }
 
 function OnMessage(event){
-
-    console.log(event.data);
-    divChatArea.innerHTML += "<div class = 'left-align'>" + event.data + "</div><br />";
+    
+    divChatArea.innerHTML += '<li class="agent clearfix"><div class="chat-body clearfix"><p>' + event.data + '</p></div></li>';
 }
 
 socket.on("ready", function(){
