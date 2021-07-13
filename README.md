@@ -27,3 +27,7 @@ When a user visits http://localhost:8080/, he/she is prompted to enter the name 
   ~~~~
 * Access the app from a WebRTC capable browser through http://localhost:8080/
 
+### Link to the Video Demo
+
+https://youtu.be/BfFZvONiCTg
+
