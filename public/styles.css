@@ -1,37 +1,28 @@
 body {
-  background-color: black;
+  background-color: indigo;
   font-family: "Helvetica";
 }
 
-h2 {
-  font-size: 18px;
-  padding: 10px 20px;
+h1 {
   color: #ffffff;
 }
 
-label {
-  box-sizing: border-box;
-  display: block;
-  padding: 10px 20px;
-}
-
 input {
-  padding: 20px;
+  padding: 1.5%;
   box-sizing: border-box;
   background: #eee;
   display: block;
-  width: 100%;
+  width: 50%;
   background: rgb(255, 253, 253);
   font-family: Nunito;
-  font-size: 16px;
 }
 
 #join {
   background: #141414;
   color: #fff;
-  font-size: 18px;
   padding: 12px 0;
-  width: 100%;
+  width: 50%;
+  font-weight: bold;
 }
 
 #video-chat-room {
@@ -39,18 +30,22 @@ input {
   justify-content: left;
 }
 
+#video-chat-lobby {
+  display : block;
+  justify-content: center;
+  padding: 4%;
+}
+
 #user-video {
-  padding : 2%;
+  /* padding : 2%; */
   width: 40%;
   height: 50%;
 }
 
 #peer-video {
-  padding : 2%;
+  /* padding : 2%; */
   width: 40%; 
   height: 50%;
-  /* width: auto;
-  height: auto; */
 }
 
 .btn-group button {
@@ -75,14 +70,18 @@ input {
 
 /* Add a background color on hover */
 .btn-group button:hover {
-  background-color: #141414;
+  background-color: indigo;
 }
 
 .btn-group {
   display : flex;
   justify-content: center;
+  position:absolute;
+  bottom:0; 
+  width: 100%;
 }
 
+/* The Chat Box */
 .card {
   float: right;
   width: 15%;

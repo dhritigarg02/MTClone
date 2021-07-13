@@ -49,7 +49,7 @@ let iceServers = {
     ],
 };
 
-joinButton.addEventListener("click", function(){
+joinButton.addEventListener("click", () => {
 
     if(roomInput.value == "") {
         alert("Please enter a room name");
@@ -59,7 +59,7 @@ joinButton.addEventListener("click", function(){
     }
 });
 
-muteButton.addEventListener("click", function(){
+muteButton.addEventListener("click", () => {
 
     muteFlag = !muteFlag;
     if(muteFlag){
@@ -71,7 +71,7 @@ muteButton.addEventListener("click", function(){
     }
 });
 
-hideCameraButton.addEventListener("click", function(){
+hideCameraButton.addEventListener("click", () => {
 
     hideCameraFlag = !hideCameraFlag;
     if(hideCameraFlag){
@@ -83,7 +83,7 @@ hideCameraButton.addEventListener("click", function(){
     }
 });
 
-shareScreenButton.addEventListener("click", function(){
+shareScreenButton.addEventListener("click", () => {
 
     shareScreenButton.disabled = true;
 
@@ -101,7 +101,7 @@ shareScreenButton.addEventListener("click", function(){
 
         // demonstrates how to detect that the user has stopped
         // sharing the screen via the browser UI.
-        screenVideoTrack.onended = function(){
+        screenVideoTrack.onended = () => {
             if(videoSender){
                 videoSender.replaceTrack(camVideoTrack);
             }
@@ -116,7 +116,7 @@ shareScreenButton.addEventListener("click", function(){
     });
 });
 
-sendMsgButton.addEventListener("click", function(){
+sendMsgButton.addEventListener("click", () => {
 
     let message = msgInput.value;
     if(chatChannel){
@@ -126,7 +126,7 @@ sendMsgButton.addEventListener("click", function(){
     msgInput.value = "";
 });
 
-leaveRoomButton.addEventListener("click", function(){
+leaveRoomButton.addEventListener("click", () => {
 
     socket.emit("leave", roomName);
     videoChat.style = "display: none";
@@ -154,7 +154,7 @@ function StreamUserMediaFunc(stream){
     videoChat.style = "display: block";
     userVideo.style = "transform: scale(-1, 1)";
     userVideo.srcObject = stream;
-    userVideo.onloadedmetadata = function(e) {
+    userVideo.onloadedmetadata = (e) => {
         userVideo.play();
     };
 }
@@ -168,7 +168,7 @@ function GetUserMediaFunc(){
             });
 }
 
-socket.on("created", function(){
+socket.on("created", () => {
 
     creator = true;
 
@@ -182,7 +182,7 @@ socket.on("created", function(){
     });
 });
 
-socket.on("joined", function(){
+socket.on("joined", () => {
 
     creator = false;
 
@@ -198,7 +198,7 @@ socket.on("joined", function(){
 });
 
 //Triggered when a room is full (meaning has 2 people).
-socket.on("full", function(){
+socket.on("full", () => {
 
     alert("room is full, can't join!");
 });
@@ -214,7 +214,7 @@ socket.on("candidate", candidate => {
 function OnTrackFunc(event){
 
     peerVideo.srcObject = event.streams[0];
-    peerVideo.onloadedmetadata = function(e){
+    peerVideo.onloadedmetadata = (e) => {
         peerVideo.play();
     };
 }
@@ -244,7 +244,7 @@ function OnMessage(event){
     divChatArea.innerHTML += '<li class="agent clearfix"><div class="chat-body clearfix"><p>' + event.data + '</p></div></li>';
 }
 
-socket.on("ready", function(){
+socket.on("ready", () => {
 
     if(creator){
         NewPeerConnFunc(iceServers);
@@ -289,7 +289,7 @@ socket.on("answer", answer => {
     rtcPeerConnection.setRemoteDescription(answer);
 });
 
-socket.on("leave", function(){
+socket.on("leave", () => {
 
     console.log("Leave");
     creator = true;
